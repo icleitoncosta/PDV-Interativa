@@ -1,0 +1,142 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Gráfica Interativa
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        button.btn.btn-sm.btn-outline-secondary#novocliente(onClick="window.location.href = '/clientes/novo';")
+          span(data-feather='user-plus' )
+          |                 Novo Cliente
+        button.btn.btn-sm.btn-outline-secondary#novoproduto(onClick="window.location.href = '/produtos/novo';")
+          span(data-feather='plus')
+          |                 Novo Produto
+  table(style="width:100%;")
+    tr
+      td(style="width: 55%;")
+        .shadow.p-3.mb-5.rounded(style='width:98%;height:605px;background-color:#fffff2;')
+          #items(style="height: 450px; width:100%; overflow-y: auto; overflow-x: hidden;")
+            table.table.table-hover
+              thead
+                tr
+                  th(scope='col' style='width:1%;') #
+                  th(scope='col') Produto
+                  th(scope='col') Qnt
+                  th(scope='col' style='width:18%;') Valor
+                  th(scope='col' style='width:14%;') Subtotal
+                  th(scope='col' style='width:1%;') Ações
+              tbody#ItensInCart
+                tr
+                  td( colspan="6" style="text-align: center; color:#bdbdbd")
+                    h3
+                      span(data-feather='plus-circle' style="width: 140px; height: 140px; color:#bdbdbd")
+                      p Adicione itens no pedido
+
+
+          hr.col-xs-12
+          #pagamento
+            form#DescPag
+              .form-group.row
+                .col-8
+                  input.form-control#observacoes_pedido(placeholder="Observação do pedido" type="text")
+                .col-4
+                    button.btn.btn-warning#pagamento_btn(type='button'  style='width:100%') 
+                      span(data-feather='bar-chart')
+                      |                 Finalizar
+              .form-group.row
+                .col-4
+                    button.btn.btn-info#novopedido(type='button' style='width:100%') 
+                      span(data-feather='trash-2')
+                      |                 Novo pedido (F5)
+                .col-4
+                    button.btn.btn-danger#pagamento(type='button' style='width:100%') 
+                      span(data-feather='clock')
+                      span#tempoAtualizado 00:00:00
+                    input#tempoAtualInput(type='hidden')
+                .col-4
+                    button.btn.btn-success#pagamento(type='button' style='width:100%') 
+                      span(data-feather='dollar-sign')
+                      span#valortotal.mn R$ 0,00
+
+
+      //Parte onde selecionamos os clientes e escolhemos os produtos para adicionar
+      td(style="width:45%;")
+        h6#testemesmo Cliente
+        form
+          .form-row.align-items-center
+            .col-8
+              label.sr-only(for='clienteInput') Cliente — Nome, CPF, CNPJ ou telefone
+              input#clienteInput.form-control.mb-2(type='text' placeholder='Cliente — Nome, CPF, CNPJ, Telefone')
+              input#clienteID.form-control.mb-2(type='hidden')
+            .col-1
+              button.btn.btn-warning#clientebalcao(type='button' data-toggle="tooltip" data-placement="top" title="Clique aqui para criar a nota para um cliente padrão, sem cadastro. (F2)") 
+                span(data-feather='x')
+            .col-3
+              button.btn.btn-danger#controlarTempo(type='button' style='width:100%' data-toggle="tooltip" data-placement="top" title="Iniciar a contagem de tempo de atendimento (F4)") 
+                span(data-feather='clock')
+                |                 Play/Pause Cronômetro
+        hr.col-xs-12
+        h6 Produtos
+        form#InserirProduto
+          .form-group.row
+            .col-9
+              input.form-control#inpInserirProduto(placeholder="Digite ou escaneie o código" type="text")
+              input.form-control#productID(type="hidden")
+            .col-3
+              .input-group
+                span.input-group-btn
+                  button.btn.btn-minuse.btn-dark(type='button' ) - 
+                input.form-control.input-number#item_quantity(type='text' name='quant[1]' value='1' min='1')
+                span.input-group-btn
+                  button.btn.btn-pluss.btn-dark(type='button') +
+          .form-group.row
+            .col-6
+              .input-group.mb-2
+                .input-group-prepend
+                  .input-group-text R$
+                input#productPrice.form-control(type='text' placeholder='0,00')
+              input.form-control#productDesc(placeholder="Descrição" type="hidden")
+            .col-6
+              input.form-control#product_type(type="hidden")
+              input.form-control#prices_by_qnt(type="hidden")
+              input.form-control#tipo_cobranca(type="hidden")
+              button.btn.btn-success#inserirItem(type='button' style='width:100%;') Inserir
+        hr.col-xs-12
+        #produtos(style="height: 350px; width:100%; overflow-y: auto; overflow-x: hidden;")
+          table
+            .form-group.row
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product-id='' data-product='') Lonas e Banners
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Adesivos
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') 2ª Via de Boleto
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Agendamento Detran
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Inscrição em Concurso
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Placas de PS
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Impressão de curriculo
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Criação de curriculo
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Envelope
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Gravação de CD
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Impressão P/B
+              .col-3(style='margin-bottom:10px;')
+                button.btn.btn-primary(type='button' style='width:100%; height:100px;' data-product='') Impressão Colorida
+
+
+
+
+block append footer  
+  link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css')
+  script(src='../../javascripts/jquery.mask.js')
+  script(src='/javascripts/easytimer.min.js')
+  script(src='/javascripts/pdv.js')
+  script(src='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js')
+  script(src='../javascripts/lang-summernote/summernote-pt-BR.js')

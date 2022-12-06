@@ -1,0 +1,24 @@
+
+block content
+doctype html
+head
+  title Login - Gráfica Interativa
+  meta(charset='UTF-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1')
+  link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css')
+  link(rel='stylesheet' type='text/css' href='stylesheets/login-main.css')
+body.text-center
+  form.form-signin(action='/login' method='POST')
+    img.mb-4(src='images/logo-interativa.png' alt='' width='250')
+    h1.h3.mb-3.font-weight-normal Por favor, entre...
+    label.sr-only(for='inputEmail') Usuário 
+    include partials/messages
+    input#inputEmail.form-control(type='text' name='usuario' placeholder='Usuario' required='' autofocus='')
+    label.sr-only(for='inputPassword') Senha
+    input#inputPassword.form-control(type='password' name='password'  placeholder='Senha ' required='')
+    button.btn.btn-lg.btn-primary.btn-block(type='submit') Acessar
+    p.mt-5.mb-3.text-muted &copy; 2020 - Gráfica Interativa
+
+
+block append footer  
+script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js')

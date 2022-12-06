@@ -1,0 +1,44 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Módulos
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        button.btn.btn-sm.btn-outline-secondary(onclick='window.location=\'/modulos/novo\';') 
+          span(data-feather='plus')
+          |                   Novo
+        button.btn.btn-sm.btn-outline-secondary Export
+      button.btn.btn-sm.btn-outline-secondary.dropdown-toggle
+        span(data-feather='calendar')
+        |                 This week
+
+  p Na parte de módulos, é onde todo o nosso sistema se baseia. Aqui, você irá criar novos módulos orientado a objetos, poderá editar os custos dos materiais, e até excluir os módulos. Mas preste muita atenção, para não fazer nada de errado.
+  
+  h3 Módulos instalados
+  hr
+  .table-responsive
+  table.table.table-striped.table-sm
+    thead
+      tr
+        th #
+        th Nome
+        th Descrição
+        th Autorizações
+        th Editar
+        th Ativ/Desat
+    tbody
+      tr
+        td 1,001
+        td Lorem
+        td ipsum
+        td dolor
+        td sit
+        td sit
+      tr
+        td 1,002
+        td amet
+        td consectetur
+        td adipiscing
+        td elit
+        td elit

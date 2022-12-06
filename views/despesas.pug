@@ -1,0 +1,222 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Despesas
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovaDespesa();') 
+            span(data-feather='dollar-sign') 
+            |  Nova despesa
+  form(onsubmit='return checkFormDate(event);' action='#')
+    .row
+      .col-md-2
+        label.font-weight-bold(for='inputDateInicio') Data inicio
+        input#inputDateInicio.form-control(type='date' name='inputDateInicio' placeholder='Data' required='')
+      .col-md-2
+        label.font-weight-bold(for='inputDateFim') Data final
+        input#inputDateFim.form-control(type='date' name='inputDateFim' placeholder='Data' required='')
+      p
+      button.btn.btn-outline-secondary(type='submit' ) 
+        span(data-feather='calendar') 
+        |  Atualizar
+    p
+
+  input.form-control(type='text' id='searchText' name='searchText' autocomplete="off" placeholder='Busca por despesa (apenas nas datas selecionadas)' aria-label='Busca')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-despesas
+      thead
+        tr
+          th Data
+          th Descrição
+          th R$ Caixa
+          th R$ Total
+          th Responsável
+          th Ações
+      tbody#dadosdespesa
+        each i, index in despesasList
+          tr.corpo
+            td.date(onload="formatDate('"+i.date+"','pt-br')")= i.date 
+            td.desc.text-capitalize= i.descricao 
+            td.mn.mn_valorcaixa= i.valordocaixa 
+            td.mn.mn_valortotal= i.valortotal 
+            td.text-capitalize= i.usuario
+            td
+              a(href='#' onclick='editarDespesa("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteDespesa("'+ i._id+'");') 
+                span(style='cursor:crosshair' data-feather='trash-2')
+      tfoot
+        tr
+          td
+          td
+          td.calculocaixa.font-weight-bold
+          td.calculototal.font-weight-bold
+
+block append footer
+  script(src='../../javascripts/moment.min.js')
+  script(src='../../javascripts/jquery.mask.js')
+  script.
+    // Criando filtro pela tabela (Necessário JQuery e Bootstrap)
+    $("#searchText").on("keyup", function() {
+      var value = $(this).val().toLowerCase().replace(/\W/g,'');
+      $(".table-despesas tr.corpo").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().replace(/\W/g,'').indexOf(value) > -1)
+      });
+    });
+
+    // Fazendo as somas dos valores
+    var ini1=0;
+    var ini2=0;
+    $('tr').children('td.mn.mn_valorcaixa').each(function () {
+      ini1 += parseInt(this.innerHTML); // "this" is the current element in the loop
+    });
+    $('.calculocaixa').html(ini1);
+    $('tr').children('td.mn.mn_valortotal').each(function () {
+      ini2 += parseInt(this.innerHTML); // "this" is the current element in the loop
+    });
+    $('.calculototal').html(ini2);
+
+    
+
+    // Algumas validações para a data
+    var datasFilter = window.location.pathname.split('/');
+
+    if(datasFilter[2]){
+      $('#inputDateInicio').val(datasFilter[2]);
+    }else{
+      $('#inputDateInicio').val(moment().startOf('month').format('YYYY-MM-DD'));
+    }
+    if(datasFilter[3]){
+      $('#inputDateFim').val(datasFilter[3]);
+    }else{
+      $('#inputDateFim').val(moment().endOf('month').format('YYYY-MM-DD'));
+    }
+
+    
+
+    $('.mn').mask('000.000.000.000.000,00', {reverse: true});
+    $('.calculocaixa').mask('000.000.000.000.000,00', {reverse: true});
+    $('.calculototal').mask('000.000.000.000.000,00', {reverse: true});
+    $('.mn').prepend('R$ ');
+    $('.calculocaixa').prepend('R$ ');
+    $('.calculototal').prepend('R$ ');
+
+
+
+    function formatDate(data, formato) {
+      if (formato == 'pt-br') {
+        $(this).html(data.substr(0, 10).split('-').reverse().join('/'));
+      } else {
+        $(this).html(data.substr(0, 10).split('/').reverse().join('-'));
+      }
+    }
+    
+
+    //Função que chegará os dados do formulário de datas e irá atualizar a página
+    function checkFormDate(e){
+      var dataInicio = $('#inputDateInicio').val();
+      var dataFim = $('#inputDateFim').val();
+
+      if(dataInicio == ''){
+        bootbox.alert('Por favor, coloque a data inicial.');
+    		e.preventDefault();
+      }else if(dataFim == ''){
+        bootbox.alert('Por favor, coloque a data final.');
+    	e.preventDefault();
+      }else{
+    	e.preventDefault();
+        window.location.href = "/despesas/"+dataInicio+"/"+dataFim;
+      }
+    }
+    // Função que irá deletar a despesa selecionada
+    function deleteDespesa(id) {
+      bootbox.confirm("Tem certeza que deseja deletar a despesa?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/despesas/'+id,
+            success: function (response){
+              location.reload();
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+
+    function addNovaDespesa(){
+      var dialog = bootbox.dialog({
+        title: 'Nova despesa',
+        message: "<p>Coloque as informações necessárias, lembre-se de informar a data correta, pois é extremamente importante.</p> <form action='/despesas' method='POST' id='formDespesa'> <div class='row'><div class='col'><label for='inputDate'>Data da despesa</label><input type='date' class='form-control' id='inputDate' name='inputDate' placeholder='Data' required></div><div class='col'><label for='inputTipo'>Tipo de Despesa</label><select class='form-control' name='inputTipo' required><option value='resmas'>Resmas e produtos da loja</option><option value='limpeza'>Limpeza</option><option value='alimentacao'>Alimentação</option><option value='transportes'>Transporte</option><option value='serralheria'>Serralheria</option><option value='impresssao'>Impressão</option><option value='acabamento'>Acabamento</option><option value='pintura'>Pintura</option><option value='offset'>Impressão offset</option></select></div></div><p></p><div class='row'><div class='col'><label for='inputValordoCaixa'>Valor retirado do caixa</label><input type='text' class='form-control money-formatt' name='inputValordocaixa' placeholder='Valor do caixa' required></div><div class='col'><label for='inputValorTotal'>Valor total</label><input type='text' class='form-control money-formatt' name='inputValortotal' onkeyup='' placeholder='Valor total' required></div><div class='col'><label for='inputPedido'>Anexar despesa a um pedido</label><input type='text' class='form-control' name='inputPedido' placeholder='Número do pedido '></div></div><p></p><div class='form-group'><label for='inputDescricao'>Descrição</label><textarea class='form-control' name='inputDescricao' id='inputDescricao' rows='3' required></textarea></div></form>", 
+        onShow: function(e) {
+          $('#inputDate').val(moment().format('YYYY-MM-DD'));
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Inserir",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formDespesa').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editarDespesa(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar despesa',
+        message: "<p>Coloque as informações necessárias, lembre-se de informar a data correta, pois é extremamente importante.</p> <form action='/' method='POST' id='formDespesaEdit'> <div class='row'><div class='col'><label for='inputDate'>Data da despesa</label><input type='date' class='form-control' id='inputDate' name='inputDate' placeholder='Data' required></div><div class='col'><label for='inputTipo'>Tipo de Despesa</label><select class='form-control' name='inputTipo' id='inputTipo' required><option value='resmas'>Resmas e produtos da loja</option><option value='limpeza'>Limpeza</option><option value='alimentacao'>Alimentação</option><option value='transportes'>Transporte</option><option value='serralheria'>Serralheria</option><option value='impresssao'>Impressão</option><option value='acabamento'>Acabamento</option><option value='pintura'>Pintura</option><option value='offset'>Impressão offset</option></select></div></div><p></p><div class='row'><div class='col'><label for='inputValordoCaixa'>Valor retirado do caixa</label><input type='text' class='form-control money-formatt' name='inputValordocaixa' placeholder='Valor do caixa' id='inputValordocaixa' required></div><div class='col'><label for='inputValorTotal'>Valor total</label><input type='text' class='form-control money-formatt' id='inputValorTotal' name='inputValortotal' placeholder='Valor total' required></div><div class='col'><label for='inputPedido'>Anexar despesa a um pedido</label><input type='text' class='form-control' id='inputPedido' name='inputPedido' placeholder='Número do pedido '></div></div><p></p><div class='form-group'><label for='inputDescricao'>Descrição</label><textarea class='form-control' name='inputDescricao' id='inputDescricao' rows='3' required></textarea></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/despesas/'+id,
+            success: function (res){
+              $('#formDespesaEdit').attr('action', 'despesas/'+id);
+              $('#inputDate').val(res.date);
+              $('#inputTipo').val(res.tipo).change();
+              $('#inputValordocaixa').val(res.valordocaixa);
+              $('#inputValorTotal').val(res.valortotal);
+              $('#inputPedido').val(res.pedido);
+              $('#inputDescricao').html(res.descricao);
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formDespesaEdit').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+
+

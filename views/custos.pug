@@ -1,0 +1,180 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Tabela de Custos
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovoCusto();') 
+            span(data-feather='dollar-sign') 
+            |  Novo Custo
+
+
+  input.form-control(type='text' id='searchText' name='searchText' autocomplete="off" placeholder='Busca por custos ' aria-label='Busca')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-custos
+      thead
+        tr
+          th Cód
+          th Nome
+          th Tipo Cobrança
+          th Valor
+          th Opções
+      tbody#dadosdespesa
+        each i, index in custosList
+          tr.corpo
+            td= i.cod 
+            td.text-capitalize= i.nome 
+            td= i.tipocob 
+            td.text-capitalize.mn= i.valor 
+            td
+              a(href='#' onclick='editarCusto("'+ i._id+'");') 
+                span(data-feather='edit')
+              if i.is_delete
+                a(href='#' onclick='deleteCusto("'+ i._id+'");') 
+                  span(style='cursor:crosshair' data-feather='trash-2')
+      tfoot
+        tr
+          td
+          td
+          td.calculocaixa.font-weight-bold
+          td.calculototal.font-weight-bold
+
+block append footer
+  script(src='../../javascripts/moment.min.js')
+  script(src='../../javascripts/jquery.mask.js')
+  script.
+    function addNovoCusto(){
+      var dialog = bootbox.dialog({
+        title: 'Novo Custo de material',
+        message: "<form action='/custos' method='POST' id='formCusto'> <div class='row'><div class='col'><label for='inputNome'>Nome do Material</label><input type='text' class='form-control' name='inputNome' required></div><div class='col'><label for='inputTipo'>Tipo de Cobrança</label><select class='form-control' name='inputTipo' required><option value='UND'>Unidade</option><option value='M'>M²</option><option value='Kg'>Quilograma</option><option value='Ml'>Metro Linear</option></select></div></div><p></p><div class='row'><div class='col'><label for='inputValor'>Preço</label><input type='text' class='form-control money-formatt' name='inputValor' placeholder='Preço que custou o material' required></div><div class='col'><label for='inputCod'>Código de referência</label><input type='text' class='form-control' name='inputCod' placeholder='C0001' required></div></div><div class='row' style='margin-left:10px;margin-top:10px;'><div class='col' ><input type='checkbox' class='form-check-input' id='inputDelet' checked='true'><label class='form-check-label' for='inputDelet' >Poderá deletar?</label></p></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Inserir",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formCusto').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    // Criando filtro pela tabela (Necessário JQuery e Bootstrap)
+    $("#searchText").on("keyup", function() {
+      var value = $(this).val().toLowerCase().replace(/\W/g,'');
+      $(".table-custos tr.corpo").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().replace(/\W/g,'').indexOf(value) > -1)
+      });
+    });
+
+
+    $('.mn').mask('000.000.000.000.000,00', {reverse: true});
+    $('.mn').prepend('R$ ');
+    
+
+    function deleteCusto(id){
+      var dialog = bootbox.dialog({
+        title: 'Atenção - Deletar Custo?',
+        message: "<p>Tem certeza que deseja deletar esse item da tabela de custos?</p><p><b>Produto:</b> <span id='NomeCustoDel' class='text-capitalize'></span><p><b>Preço:</b> <span id='precoDel' class='mnDel'></span>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/custos/'+id,
+            success: function (res){
+              $('#NomeCustoDel').html(res.nome);
+              $('#precoDel').html(res.valor);
+
+              $('.mnDel').mask('000.000.000.000.000,00', {reverse: true});
+              $('.mnDel').prepend('R$ ');
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Deletar",
+            className: 'btn-danger',
+            callback: function(){
+              $.ajax({
+                type: 'DELETE',
+                url: '/custos/'+id,
+                success: function (response){
+                  location.reload();
+                },
+                error: function(err){
+                  console.error(err);
+                }
+              });
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-primary',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+
+    function editarCusto(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar custos',
+        message: "<form action='#' method='POST' id='formCustoEdit'> <div class='row'><div class='col'><label for='inputNome'>Nome do Material</label><input type='text' class='form-control text-capitalize' name='inputNome' id='inputNome' required></div><div class='col'><label for='inputTipo'>Tipo de Cobrança</label><select class='form-control' name='inputTipo' id='inputTipo' required><option value='UND'>Unidade</option><option value='M'>M²</option><option value='Kg'>Quilograma</option><option value='Ml'>Metro Linear</option></select></div></div><p></p><div class='row'><div class='col'><label for='inputValor'>Preço</label><input type='text' class='form-control money-formatt' name='inputValor' placeholder='Preço que custou o material' required id='inputValor'></div><div class='col'><label for='inputCod'>Código de referência</label><input type='text' class='form-control' name='inputCod' placeholder='C0001' id='inputCod' required></div></div><div class='row' style='margin-left:10px;margin-top:10px;'><div class='col' ><input type='checkbox' class='form-check-input' name='inputDelet' id='inputDelet' checked='true'><label class='form-check-label' for='inputDelet' >Poderá deletar?</label></p></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/custos/'+id,
+            success: function (res){
+              $('#formCustoEdit').attr('action', '/custos/'+id);
+              $('#inputNome').val(res.nome);
+              $('#inputTipo').val(res.tipocob).change();
+              $('#inputValor').val(res.valor);
+              $('#inputCod').val(res.cod);
+              $('#inputDelet').prop('checked', res.is_delete);
+
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formCustoEdit').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+
+

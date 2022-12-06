@@ -1,0 +1,416 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Sobras de material
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovaLona();') 
+            span(data-feather='plus') 
+            |  Nova sobra de lona
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovoAdesivo();') 
+            span(data-feather='plus') 
+            |  Nova sobra de adesivo
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovoBastao();') 
+            span(data-feather='plus') 
+            |  Nova sobra de bastão
+  p Toda vez que ocorrer uma sobra de material 
+    span.text-danger (se o sistema não avisar que ele adicionou em sobras) 
+    span é necessário inseri-la aqui manualmente.
+
+  
+  input.form-control(type='text' id='searchText' name='searchText' autocomplete="off" placeholder='Busque por um tipo de produto especifico' aria-label='Busca')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Lonas
+        tr 
+          th Cód
+          th Marca
+          th Tipo
+          th Gramatura
+          th Largura
+          th Cor do fundo
+          th Comprimento
+          th Custo
+          th Opções
+      tbody
+        each i, index in lonasList
+          tr#corpo
+            td.text-capitalize= i.cod 
+            td.text-capitalize= i.marca 
+            td.text-capitalize= i.tp 
+            td.text-capitalize.grLon= i.gr 
+            td.text-capitalize= i.lg 
+            td.text-capitalize= i.fundo 
+            td.text-capitalize= i.comprimento 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editLona("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteLona("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Adesivos
+        tr 
+          th Cod
+          th Marca
+          th Tipo
+          th Gramatura
+          th Largura
+          th Blockout
+          th Tipo de cola
+          th Comprimento
+          th Custo
+          th Opções
+      tbody
+        each i, index in adesivosList
+          tr#corpo
+            td.text-capitalize= i.cod
+            td.text-capitalize= i.marca 
+            td.text-capitalize= i.tp 
+            td.text-capitalize.grVinil= i.gr 
+            td.text-capitalize= i.lg 
+            td.text-capitalize.fundo= i.fundo 
+            td.text-capitalize.cola= i.cola 
+            td.text-capitalize= i.comprimento 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editAdesivo("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteAdesivo("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Bastões
+        tr 
+          th Cód
+          th Fornecedor
+          th Tipo
+          th Expessura
+          th Tamanho
+          th Custo
+          th Opções
+      tbody
+        each i, index in bastaoList
+          tr#corpo
+            td.text-capitalize= i.cod
+            td.text-capitalize= i.fornecedor 
+            td.text-capitalize= i.tp 
+            td.text-capitalize= i.exp 
+            td.text-capitalize= i.tam 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editBastao("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteBastao("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+block append footer
+  script(src='../javascripts/jquery.mask.js')
+  script.
+    // Criando filtro pela tabela (Necessário JQuery e Bootstrap)
+    $("#searchText").on("keyup", function() {
+      var value = $(this).val().toLowerCase().replace(/\W/g,'');
+      $(".table-all tr#corpo").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().replace(/\W/g,'').indexOf(value) > -1)
+      });
+    });
+
+    // Adiccionando formatação para os textos
+    $(".fundo").each(function() {
+      var text = $(this).text();
+      text = text.replace("1", "Comum - Branco (passa luz)");
+      text = text.replace("2", "Blockout (Cinza ou Preto)");
+      text = text.replace("3", "Transparente");
+      $(this).text(text);
+    });
+    $(".cola").each(function() {
+      var text = $(this).text();
+      text = text.replace("1", "Permanente");
+      text = text.replace("2", "Removível");
+      $(this).text(text);
+    });
+    $('.grVinil').prepend('0.');
+    $('.grLon').append('gr');
+
+    // Função para criar uma nova lona, envia para o servidor e adiciona
+    function addNovaLona(){
+      var dialog = bootbox.dialog({
+        title: 'Novo rolo de Lona',
+        message: "<form action='/sobras/nova_lona' method='POST' id='formLona'> <div class='row'><div class='col'><label for='inputCod'>Código</label><input type='text' class='form-control ' name='inputCod' placeholder='LN001' required></div><div class='col'><label for='inputTp'>Tipo de lona</label><select class='form-control' name='inputTp' required><option value='Brilho'>Brilho</option><option value='Fosca'>Fosca</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><input type='number' class='form-control' name='inputGR' placeholder='440' required></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' placeholder='1485,80' required></div></div><p></p><div class='row'><div class='col'><label for='inputComprimento'>Comprimento</label><input type='number' class='form-control ' name='inputComprimento' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura</label><input type='number' class='form-control' name='inputLG' placeholder='320' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><input type='text' class='form-control' name='inputFundo' placeholder='Preto'></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formLona').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editLona(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Lona',
+        message: "<form action='#' method='POST' id='formEditLona'> <div class='row'><div class='col'><label for='inputCod'>Código</label><input type='text' class='form-control ' name='inputCod' placeholder='LN001' required></div><div class='col'><label for='inputTp'>Tipo de lona</label><select class='form-control' name='inputTp' required><option value='Brilho'>Brilho</option><option value='Fosca'>Fosca</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><input type='number' class='form-control' name='inputGR' placeholder='440' required></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' placeholder='1485,80' required></div></div><p></p><div class='row'><div class='col'><label for='inputComprimento'>Metragem do rolo</label><input type='number' class='form-control ' name='inputComprimento' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura</label><input type='number' class='form-control' name='inputLG' placeholder='320' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><input type='text' class='form-control' name='inputFundo' placeholder='Preto'></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/sobras/lonas/'+id,
+            success: function (res){
+              $('#formEditLona').attr('action', '/sobras/lonas/edit/'+id);
+              $('input[name=\'inputTp\']').val(res.tp).change();
+              $('option[value="'+ res.tp +'"]').attr('selected','selected');
+              $('input[name=\'inputGR\']').val(res.gr);
+              $('input[name=\'inputMarca\']').val(res.marca);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputComprimento\']').val(res.comprimento);
+              $('input[name=\'inputLG\']').val(res.lg);
+              $('input[name=\'inputFundo\']').val(res.fundo);
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditLona').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+
+    function deleteLona(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar essa sobra de lona?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/sobras/lonas/'+id,
+            success: function (response){
+              window.location.href='/sobras';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+
+    // ADESIVO
+    // Função para criar uma novo adesivo, envia para o servidor e adiciona
+    function addNovoAdesivo(){
+      var dialog = bootbox.dialog({
+        title: 'Novo rolo de Adesivo',
+        message: "<form action='/sobras/novo_adesivo' method='POST' id='formAdesivo'> <div class='row'><div class='col'><label for='inputCod'>Código</label><input type='text' class='form-control ' name='inputCod' placeholder='AD001' required></div><div class='col'><label for='inputTp'>Tipo de superfície</label><select class='form-control' name='inputTp' required><option value=''></option><option value='Brilho'>Brilho</option><option value='Fosca'>Fosco</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><select class='form-control' name='inputGR' required><option value=''></option><option value='8'>0.8</option><option value='10'>0.10</option></select></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div></div><p></p><div class='row'><div class='col'><label for='inputComprimento'>Metragem do rolo (M)</label><input type='number' class='form-control ' name='inputComprimento' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura (cm)</label><input type='number' class='form-control' name='inputLG' placeholder='106' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><select class='form-control' name='inputFundo' required><option value=''></option><option value='1'>Comum - Branco (passa luz)</option><option value='2'>Blockout (Cinza ou Preto)</option><option value='3'>Transparente</option></select></div><div class='col'><label for='inputCola'>Cola</label><select class='form-control' name='inputCola' required><option value=''></option><option value='1'>Permanente</option><option value='2'>Removível</option></select></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formAdesivo').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editAdesivo(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Adesivo',
+        message: "<form action='#' method='POST' id='formEditAdesivo'> <div class='row'><div class='col'><label for='inputCod'>Código</label><input type='text' class='form-control ' name='inputCod' placeholder='LN001' required></div><div class='col'><label for='inputTp'>Tipo de superfície</label><select class='form-control' name='inputTp' required><option value=''></option><option value='Brilho'>Brilho</option><option value='Fosca'>Fosco</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><select class='form-control' name='inputGR' required><option value=''></option><option value='8'>0.8</option><option value='10'>0.10</option></select></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div></div><p></p><div class='row'><div class='col'><label for='inputComprimento'>Metragem do rolo (M)</label><input type='number' class='form-control ' name='inputComprimento' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura (cm)</label><input type='number' class='form-control' name='inputLG' placeholder='106' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><select class='form-control' name='inputFundo' required><option value=''></option><option value='1'>Comum - Branco (passa luz)</option><option value='2'>Blockout (Cinza ou Preto)</option><option value='3'>Transparente</option></select></div><div class='col'><label for='inputCola'>Cola</label><select class='form-control' name='inputCola' required><option value=''></option><option value='1'>Permanente</option><option value='2'>Removível</option></select></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/sobras/adesivos/'+id,
+            success: function (res){
+              $('#formEditAdesivo').attr('action', '/sobras/adesivos/edit/'+id);
+              $('input[name=\'inputTp\']').val(res.tp).change();
+              $('option[value="'+ res.tp +'"]').attr('selected','selected');
+              $('input[name=\'inputGR\']').val(res.gr).change();
+              $('option[value="'+ res.gr +'"]').attr('selected','selected');
+              $('input[name=\'inputMarca\']').val(res.marca);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputComprimento\']').val(res.comprimento);
+              $('input[name=\'inputLG\']').val(res.lg);
+              $('input[name=\'inputFundo\']').val(res.fundo);
+              $('input[name=\'inputCola\']').val(res.tp).change();
+              $('option[value="'+ res.cola +'"]').attr('selected','selected');
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditAdesivo').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function deleteAdesivo(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar essa sobra de adesivo?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/sobras/adesivos/'+id,
+            success: function (response){
+              window.location.href='/sobras';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+
+    // BASTAO
+    // Função para criar um novo bastao
+    function addNovoBastao(){
+      var dialog = bootbox.dialog({
+        title: 'Novo Bastão para banner',
+        message: "<form action='/sobras/novo_bastao' method='POST' id='formBastao'> <div class='row'><div class='col'><label for='inputCod'>Código</label><input type='text' class='form-control ' name='inputCod' placeholder='BA001' required></div><div class='col'><label for='inputTp'>Tipo de material</label><select class='form-control' name='inputTp' required><option value=''></option><option value='plastico'>Plástico</option><option value='Madeira'>Madeira</option><option value='Perfil C'>Perfil C</option></select></div><div class='col'><label for='inputEXP'>Espessura</label><select class='form-control' name='inputEXP' required><option value=''></option><option value='16'>16mm</option><option value='19'>19mm</option><option value='23'>23mm</option></select></div><div class='col'><label for='inputFornecedor'>Fornecedor</label><input type='text' class='form-control' name='inputFornecedor' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputTam'>Tamanho (cm)</label><input type='number' class='form-control' name='inputTam' required></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formBastao').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editBastao(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Bastão para Banner',
+        message: "<form action='#' method='POST' id='formEditBastao'> <div class='row'><div class='col'><label for='inputCod'>Código</label><input type='text' class='form-control ' name='inputCod' placeholder='BA001' required></div><div class='col'><label for='inputTp'>Tipo de material</label><select class='form-control' name='inputTp' required><option value=''></option><option value='plastico'>Plástico</option><option value='Madeira'>Madeira</option><option value='Perfil C'>Perfil C</option></select></div><div class='col'><label for='inputEXP'>Espessura</label><select class='form-control' name='inputEXP' required><option value=''></option><option value='16'>16mm</option><option value='19'>19mm</option><option value='23'>23mm</option></select></div><div class='col'><label for='inputFornecedor'>Fornecedor</label><input type='text' class='form-control' name='inputFornecedor' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputTam'>Tamanho (cm)</label><input type='number' class='form-control' name='inputTam' required></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/sobras/bastao/'+id,
+            success: function (res){
+              $('#formEditBastao').attr('action', '/sobras/bastao/edit/'+id);
+              $('input[name=\'inputTp\']').val(res.tp).change();
+              $('option[value="'+ res.tp +'"]').attr('selected','selected');
+              $('input[name=\'inputEXP\']').val(res.exp).change();
+              $('option[value="'+ res.exp +'"]').attr('selected','selected');
+              $('input[name=\'inputFornecedor\']').val(res.fornecedor);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputTam\']').val(res.tam);
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditBastao').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function deleteBastao(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar essa sobra de bastão?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/sobras/bastao/'+id,
+            success: function (response){
+              window.location.href='/sobras';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+

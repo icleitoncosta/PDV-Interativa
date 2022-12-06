@@ -1,0 +1,77 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Dashboard
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        button.btn.btn-sm.btn-outline-secondary Share
+        button.btn.btn-sm.btn-outline-secondary Export
+      button.btn.btn-sm.btn-outline-secondary.dropdown-toggle
+        span(data-feather='calendar')
+        |                 This week
+  h4 Bem vindo
+  p Bem vindo, a versão 1.0.0 do nosso PDV, espero que o sistema te agrade, seja rápido e útil. Juntamos nossos esforços para que através desse sistema seja criado um novo momento em nossa empresa, como todos sabem: queremos crescer e alçar voôs maiores, e só conseguiremos, através de um sistema de gerenciamento único, calculando todos os cutos envolvidos, todos os pedidos e colaboradores falando apenas uma língua. 
+  p Agradecemos a compreensão de todos e contamos com a sua ajuda para melhorar ainda mais o aplicativo.
+  p.font-italic Maicon Carvalho. Anúncio públicado em 10 de agosto de 2020 às 09:40
+
+  
+  h2 Últimos Pedidos
+  .table-responsive
+  table.table.table-striped.table-sm
+    thead
+      tr
+        th #
+        th Cliente
+        th Header
+        th Header
+        th Header
+    tbody
+      tr
+        td 1,001
+        td Lorem
+        td ipsum
+        td dolor
+        td sit
+      tr
+        td 1,002
+        td amet
+        td consectetur
+        td adipiscing
+        td elit
+  h2 Gráfico de Vendas
+  canvas#myChart.my-4.w-100(width='900' height='380')
+
+
+
+block append footer  
+  // Graphs
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js')
+  script.
+    var ctx = document.getElementById("myChart");
+    var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+    labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    datasets: [{
+    data: [15339, 21345, 18483, 24003, 23489, 24092, 12034],
+    lineTension: 0,
+    backgroundColor: 'transparent',
+    borderColor: '#007bff',
+    borderWidth: 4,
+    pointBackgroundColor: '#007bff'
+    }]
+    },
+    options: {
+    scales: {
+    yAxes: [{
+    ticks: {
+    beginAtZero: false
+    }
+    }]
+    },
+    legend: {
+    display: false,
+    }
+    }
+    });

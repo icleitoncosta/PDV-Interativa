@@ -1,0 +1,119 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Novo cliente
+    .btn-toolbar.mb-2.mb-md-0
+  p Esse cadastro é imprescindível colocar todas as informações necessárias, isso, porque quando o sistema de notas fiscais estiver integrado, você não se verá obrigado editar cliente por cliente inserindo esses dados. 
+  form(action='/clientes/novo' method='POST' onsubmit='checkVals(event);')
+    .form-row
+      .form-group.col-md-6
+        label(for='inputNome') Nome Completo
+        input#inputNome.form-control(type='text' required autocomplete="off" name='inputNome')
+      .form-group.col-md-4
+        label(for='inputTelefone') Telefone
+        input#inputTelefone.form-control.tel(type='text' autocomplete="off" name='inputTelefone')
+      .form-group.col-md-2
+        label(for='inputCelular') Celular
+        input#inputCelular.form-control.cel(type='text' autocomplete="off" name='inputCelular')
+      .form-group.col-md-6
+        label(for='inputEmail') Email
+        input#inputEmail.form-control(type='email' placeholder='Email' autocomplete="off" name='inputEmail')
+      .form-group.col-md-4
+        label(for='inputDoc') CPF/CNPJ
+        input#inputDoc.form-control.documento(type='text' required autocomplete="off" min='11' max='11' name='inputDoc')
+      .form-group.col-md-2
+        label(for='inputdataNascimento') Data de Nascimento
+        input#inputdataNascimento.form-control.dn(type='text' autocomplete="off" name='inputdataNascimento')
+    .form-row
+      .form-group.col-md-9
+        label(for='inputLogradouro') Logradouro
+        input#inputLogradouro.form-control(type='text' placeholder='Rua Presidente Arthur Bernardes' name='inputLogradouro')
+      .form-group.col-md-1
+        label(for='inputNumero') Número
+        input#inputNumero.form-control(type='text' placeholder='266' autocomplete="off" name='inputNumero')
+      .form-group.col-md-2
+        label(for='inputBairro') Bairro
+        input#inputBairro.form-control(type='text' name='inputBairro')
+    .form-row
+      .form-group.col-md-6
+        label(for='inputCidade') Cidade
+        input#inputCidade.form-control(type='text' value="Rio Bonito" name='inputCidade')
+      .form-group.col-md-4
+        label(for='inputEstado') Estado
+        select#inputEstado.form-control(name='inputEstado')
+          option(selected='rj') RJ
+          option(value='ac') Acre
+          option(value='al') Alagoas
+          option(value='am') Amazonas
+          option(value='ap') Amap&aacute;
+          option(value='ba') Bahia
+          option(value='ce') Cear&aacute;
+          option(value='df') Distrito Federal
+          option(value='es') Esp&iacute;rito Santo
+          option(value='go') Goi&aacute;s
+          option(value='ma') Maranh&atilde;o
+          option(value='mt') Mato Grosso
+          option(value='ms') Mato Grosso do Sul
+          option(value='mg') Minas Gerais
+          option(value='pa') Par&aacute;
+          option(value='pb') Para&iacute;ba
+          option(value='pr') Paran&aacute;
+          option(value='pe') Pernambuco
+          option(value='pi') Piau&iacute;
+          option(value='rj') Rio de Janeiro
+          option(value='rn') Rio Grande do Norte
+          option(value='ro') Rond&ocirc;nia
+          option(value='rs') Rio Grande do Sul
+          option(value='rr') Roraima
+          option(value='sc') Santa Catarina
+          option(value='se') Sergipe
+          option(value='sp') S&atilde;o Paulo
+          option(value='to') Tocantins
+      .form-group.col-md-2
+        label(for='inputCEP') CEP
+        input#inputCEP.form-control.cep(type='text' max='8' value='28800000' name='inputCEP')
+    .form-group
+      label(for='inputInfo') Informações sobre o cadastro do cliente
+      textarea#inputInfo.form-control(rows='3' name='inputInfo')
+
+    button.btn.btn-primary(type='submit') Inserir
+
+block append footer
+  script(src='../javascripts/jquery.mask.js')
+  script.
+    // Máscara no CEP
+    $('.cep').mask('99.999-999');
+    $('.tel').mask('(99) 9999-9999#');
+    $('.cel').mask('(99) 99999-9999');
+    $('.dn').mask('99/99/9999');
+
+    // Colocando máscara no CPF ou CNPJ, à depender do cadastro do cliente
+    $(".documento").keyup(function() {
+      var doc = $(this).val();
+      doc.length > 12 ? $(this).mask('00.000.000/0000-00') : $(this).mask('000.000.000-00####');
+    });
+
+    function checkVals(e){
+    	if($('#inputNome').val().length < 5){
+        bootbox.alert('Coloque o nome completo');
+    		e.preventDefault();
+    	}
+    	if($('#inputTelefone').val().length > 1 && $('#inputTelefone').val().length < 10){
+        bootbox.alert('Coloque o telefone corretamente');
+    		e.preventDefault();
+    	}
+    	if($('#inputCelular').val().length > 1 && $('#inputCelular').val().length < 10){
+        bootbox.alert('Coloque o celular corretamente');
+    		e.preventDefault();
+    	}
+    	if($('#inputDoc').val().length > 1 && $('#inputDoc').val().length < 11){
+        bootbox.alert('Coloque o CPF corretamente');
+    		e.preventDefault();
+    	}
+    	if($('#inputCEP').val().length < 8){
+        bootbox.alert('Coloque o CEP corretamente');
+    		e.preventDefault();
+    	}
+    }
+    

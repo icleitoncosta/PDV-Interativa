@@ -1,0 +1,89 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Produtos
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        a(href='/produtos/novo_atributo' )
+          button.btn.btn-sm.btn-outline-secondary
+            span(data-feather='plus') 
+            |  Novo atributo
+        a(href='/produtos/novo' )
+          button.btn.btn-sm.btn-outline-secondary
+            span(data-feather='plus-circle') 
+            |  Novo produto
+
+  input.form-control(type='text' id='searchText' name='searchText' autocomplete="off" placeholder='Busca por produtos' aria-label='Busca')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-produtos
+      thead
+        tr
+          th Cód
+          th Nome
+          th(style='width:50%;') Descrição
+          th Tipo preço
+          th Preço
+          th Atributos
+          th Opções
+      tbody#dadosprodutos
+        each i, index in produtosList
+          tr.corpo
+            td= i.cod
+            td.text-capitalize= i.nome
+            td.desc(style='text-align:left;')= i.descricao 
+            td.tipopreco= i.tipopreco 
+            td.mn= i.preco 
+            td.text-capitalize= i.atributos
+            td
+              a(href='produtos/atributos/'+ i._id) 
+                span(data-feather='paperclip')
+              a(href='produtos/'+ i._id) 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteProduto("'+ i._id+'");') 
+                span(style='cursor:crosshair' data-feather='trash-2')
+
+block append footer
+  script(src='../../javascripts/jquery.mask.js')
+  script.
+    // Criando filtro pela tabela 
+    $("#searchText").on("keyup", function() {
+      var value = $(this).val().toLowerCase().replace(/\W/g,'');
+      $(".table-produtos tr.corpo").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().replace(/\W/g,'').indexOf(value) > -1)
+      });
+    });
+    $( document ).ready(function() {
+      $( ".desc" ).each(function() {
+        var text = $(this).html();
+        $(this).html(htmlDecode(text));
+      });
+    });
+
+
+    
+   
+    $('.mn').mask('000.000.000.000.000,00', {reverse: true});
+    $('.mn').prepend('R$ ');
+
+    
+    // Função que irá deletar a despesa selecionada
+    function deleteProduto(id) {
+      bootbox.confirm("Tem certeza que deseja deletar esse produto?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/produtos/'+id,
+            success: function (response){
+              location.reload();
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+
+

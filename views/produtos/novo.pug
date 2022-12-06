@@ -1,0 +1,192 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Novo Produto
+    .btn-toolbar.mb-2.mb-md-0
+  form(action='/produtos/novo' method='POST' name="FormNovoProduto" onsubmit='return checkVals(this);')
+    .form-row
+      .form-group.col-md-10
+        label(for='inputNome') Nome do produto
+        input#inputNome.form-control(type='text' required name='inputNome')
+      .form-group.col-md-2
+        label(for='inputCod') Código p/ produto
+        input#inputCod.form-control(type='text' required name='inputCod')
+      .form-group.col-md-12
+        label(for='inputDescricao') Descrição
+        textarea#inputDescricao.form-control(rows="20" autocomplete="off" name='inputDescricao' required)
+      .form-group.col-md-4
+        label(for='inputTipoCob') Forma de Cobrança
+        select#inputTipoCob.form-control(name='inputTipoCob' required)
+          option(selected='0') Nenhuma
+          option(value='UND') Unidade
+          option(value='M²') M²
+          option(value='Kg') Quilograma
+          option(value='Ml') Metro Linear
+      .form-group.col-md-2
+        label(for='inputPreco') Preço
+        input#inputPreco.form-control.mn(type='text' autocomplete="off" name='inputPreco' required)
+      .form-group.col-md-2
+        label(for='inputCustoMaterial') Custo
+        input#inputCustoMaterial.form-control.mn(type='text' autocomplete="off" name='inputCustoMaterial' required)
+      .form-group.col-md-4
+        label(for='inputTipo') Tipo
+        input#inputTipo.form-control(type='text' autocomplete="off" name='inputTipo' required)
+      
+
+      .form-group.col-md-6
+        label(for='inputTipoCob') Preços por quantidade
+        table
+          thead
+            tr
+              td Qnt 1
+              td Qnt 2
+              td Valor R$
+          tbody
+            tr
+              td
+                input#inputCod.form-control(type='number' placeholder='1' name='qnt1[a]')
+              td
+                input#inputCod.form-control(type='number' placeholder='10' name='qnt1[z]')
+              td
+                input#inputCod.form-control.mn(type='text' placeholder='10,99' name='qnt1[valor]')
+            tr
+              td
+                input#inputCod.form-control(type='number' placeholder='1' name='qnt2[a]')
+              td
+                input#inputCod.form-control(type='number' placeholder='10' name='qnt2[z]')
+              td
+                input#inputCod.form-control.mn(type='text' placeholder='10,99' name='qnt2[valor]')
+            tr
+              td
+                input#inputCod.form-control(type='number' placeholder='1' name='qnt3[a]')
+              td
+                input#inputCod.form-control(type='number' placeholder='10' name='qnt3[z]')
+              td
+                input#inputCod.form-control.mn(type='text' placeholder='10,99' name='qnt3[valor]')
+            tr
+              td
+                input#inputCod.form-control(type='number' placeholder='1' name='qnt4[a]')
+              td
+                input#inputCod.form-control(type='number' placeholder='10' name='qnt4[z]')
+              td
+                input#inputCod.form-control.mn(type='text' placeholder='10,99' name='qnt4[valor]')
+            tr
+              td
+                input#inputCod.form-control(type='number' placeholder='1' name='qnt5[a]')
+              td
+                input#inputCod.form-control(type='number' placeholder='10' name='qnt5[z]')
+              td
+                input#inputCod.form-control.mn(type='text' placeholder='10,99' name='qnt5[valor]')
+                input#inputCod.form-control(type='hidden' name='varQntPrice')
+
+      .form-group.col-md-6
+        label(for='inputAtributo') Chamar atributos?
+        select#inputAtributo.form-control(multiple name='inputAtributo' required style="height: 90%")
+          option(selected='0') Nenhum
+        each i, index in atributosList
+          option(value= i.nome)= i.nome
+
+    button.btn.btn-primary(type='submit') Inserir
+
+block append footer
+  link(rel='stylesheet', href='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css')
+  script(src='../javascripts/jquery.mask.js')
+  script(src='https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js')
+  script(src='../javascripts/lang-summernote/summernote-pt-BR.js')
+  script.
+
+    $('.mn').mask('000.000,00', {reverse: true})
+
+    function checkVals(e){
+      if($('#inputCod').val().length < 1){
+        bootbox.alert('Coloque um código para o produto');
+        e.preventDefault();
+      }
+    	if($('#inputNome').val().length < 5){
+        bootbox.alert('Coloque o nome completo');
+    		e.preventDefault();
+    	}
+    	if(!$('#inputTipoCob').val()){
+        bootbox.alert('Selecione o tipo de cobrança');
+    		e.preventDefault();
+    	}
+      if(!$('#inputPreco').val()){
+        bootbox.alert('Insira um preço para o produto');
+        e.preventDefault();
+      }
+      if(!$('#inputCustoMaterial').val()){
+        bootbox.alert('Insira o custo do produto');
+        e.preventDefault();
+      }
+      // Create json with variations value of qnt
+      var varQnt = {};
+
+      for(i=1;i<5;i++){
+        var zAnt = i-1;
+        zAnt = $('input[name ="qnt'+zAnt+'[z]"]').val();
+        var a = $('input[name ="qnt'+i+'[a]"]').val();
+        var z = $('input[name ="qnt'+i+'[z]"]').val();
+        var price = $('input[name ="qnt'+i+'[valor]"]').val();
+        var NumAtual = i;
+
+        //Validações
+        if(price != '' && a == ''){
+          bootbox.alert('Além de colocar o preço que será dado na quantidade, é obrigatório selecionar a quantidade inicial e/ou final.');
+          return false;
+        }else if(price == '' && a != ''){
+          bootbox.alert('Insira um preço válido para a quantidade inserida.');
+          return false;
+        }else if(z < a){
+          bootbox.alert('A quantidade final não pode ser menor que a inicial.');
+          return false;
+        }else if(a == zAnt && zAnt != ''){
+          bootbox.alert('A quantidade final e inicial não podem ser iguais.');
+          return false;
+        }else{
+          //Laço for invertido para verificar se o número atual não é menor que nenhum anterior
+          if(i != 1){
+            for(h=NumAtual; h>0; h--){
+              var antN = h-1;
+              var Zanterior = $('input[name ="qnt'+antN+'[z]"]').val();
+              if(a < Zanterior && a != ''){
+                bootbox.alert('Atenção!!! Verifique todas as colunas de quantidades e preços.');
+                return false;
+              }
+            }
+          }
+          // Checa se um dos campos estejam em brancos e caso esteja não irá passar.
+          if(a != '' && z != '' && price != ''){
+            var varValue = 
+              {
+                "a": a,
+                "z": z,
+                "price": ConvertPriceValue(price)
+              };
+            varQnt[i] = varValue;
+          }
+
+          $('input[name ="varQntPrice"]').val(JSON.stringify(varQnt));
+        }
+        
+
+      }
+    }
+
+    $(document).ready(function() {
+      $('#inputDescricao').summernote({
+        placeholder: 'Descreva o produto. Essa descrição irá aparecer na nota final para o cliente.',
+        tabsize: 2,
+        height: 180,
+        lang: 'pt-BR', // default: 'en-US'
+        toolbar: [
+          // [groupName, [list of button]]
+          ['style', ['bold', 'italic', 'underline', 'clear']],
+          ['font', ['strikethrough', 'superscript', 'subscript']],
+          ['fontsize', ['fontsize']],
+          ['color', ['color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['height', ['height']]
+        ]
+      });
+    });

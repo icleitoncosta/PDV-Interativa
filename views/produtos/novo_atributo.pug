@@ -1,0 +1,69 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Novo Atributo
+    .btn-toolbar.mb-2.mb-md-0
+  form(action='/produtos/novo_atributo' method='POST' onsubmit='checkVals(event);')
+    .form-row
+      .form-group.col-md-4
+        label(for='inputNome') Nome do atributo
+        input#inputNome.form-control(type='text' required autocomplete="off" name='inputNome')
+      .form-group.col-md-8
+        label(for='inputDescricao') Descrição
+        input#inputDescricao.form-control(type='text' autocomplete="off" name='inputDescricao')
+      .form-group.col-md-4
+        label(for='inputTipoCob') Forma de Cobrança
+        select#inputTipoCob.form-control(name='inputTipoCob' required)
+          option(selected='0') Nenhuma
+          option(value='UND') Unidade
+          option(value='M²') M²
+          option(value='Kg') Quilograma
+          option(value='Ml') Metro Linear
+      .form-group.col-md-4
+        label(for='inputPreco') Preço
+        input#inputPreco.form-control.mn(type='text' autocomplete="off" name='inputPreco')
+      .form-group.col-md-4
+        label(for='inputCustoMaterial') Custo
+        input#inputCustoMaterial.form-control.mn(type='text' autocomplete="off" name='inputCustoMaterial')
+      .form-group.col-md-12
+        label(for='inputAtributo') Chamar atributos?
+        select#inputAtributo.form-control(multiple name='inputAtributo' required)
+          option(selected='0') Nenhum
+        each i, index in atributosList
+          option(value= i.nome)= i.nome
+
+    button.btn.btn-primary(type='submit') Inserir
+
+block append footer
+  script(src='../javascripts/jquery.mask.js')
+  script.
+
+    $(".documento").keyup(function() {
+      var doc = $(this).val();
+      doc.length > 12 ? $(this).mask('00.000.000/0000-00') : $(this).mask('000.000.000-00####');
+    });
+
+    function checkVals(e){
+    	if($('#inputNome').val().length < 5){
+        bootbox.alert('Coloque o nome completo');
+    		e.preventDefault();
+    	}
+    	if($('#inputTelefone').val().length > 1 && $('#inputTelefone').val().length < 10){
+        bootbox.alert('Coloque o telefone corretamente');
+    		e.preventDefault();
+    	}
+    	if($('#inputCelular').val().length > 1 && $('#inputCelular').val().length < 10){
+        bootbox.alert('Coloque o celular corretamente');
+    		e.preventDefault();
+    	}
+    	if($('#inputDoc').val().length > 1 && $('#inputDoc').val().length < 11){
+        bootbox.alert('Coloque o CPF corretamente');
+    		e.preventDefault();
+    	}
+    	if($('#inputCEP').val().length < 8){
+        bootbox.alert('Coloque o CEP corretamente');
+    		e.preventDefault();
+    	}
+    }
+    

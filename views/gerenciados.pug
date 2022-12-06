@@ -1,0 +1,645 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Produtos gerenciados
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovaLona();') 
+            span(data-feather='plus') 
+            |  Novo rolo de lona
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovoAdesivo();') 
+            span(data-feather='plus') 
+            |  Novo rolo de adesivo
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovoBastao();') 
+            span(data-feather='plus') 
+            |  Novo bastão
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovoIlhos();') 
+            span(data-feather='plus') 
+            |  Novo ilhós
+        a(href='#' )
+          button.btn.btn-sm.btn-outline-secondary(onclick='addNovaPonteira();') 
+            span(data-feather='plus') 
+            |  Nova Ponteira
+  p Os produtos gerenciados, foi uma forma que criamos para poder gerenciar o estoques e para o PDV fizesse todo o cálculo automaticamente. Aqui dentro é necessário ter todos os produtos que terão alguma coisa no código fonte que depende deles. Sejam eles, lonas, adesivos, bastões, tipos de ilhoses, etc. Não adicione esses produtos aos 'Produtos comuns', pois eles não irão funcionar da forma correta.
+
+  
+  input.form-control(type='text' id='searchText' name='searchText' autocomplete="off" placeholder='Busque por um tipo de produto especifico' aria-label='Busca')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Lonas
+        tr 
+          th Marca
+          th Tipo
+          th Gramatura
+          th Largura
+          th Cor do fundo
+          th Estoque atual
+          th Custo
+          th Opções
+      tbody
+        each i, index in lonasList
+          tr#corpo
+            td.text-capitalize= i.marca 
+            td.text-capitalize= i.tp 
+            td.text-capitalize.grLon= i.gr 
+            td.text-capitalize= i.lg 
+            td.text-capitalize= i.fundo 
+            td.text-capitalize= i.estoque 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editLona("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteLona("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Adesivos
+        tr 
+          th Marca
+          th Tipo
+          th Gramatura
+          th Largura
+          th Blockout
+          th Tipo de cola
+          th Estoque atual
+          th Custo
+          th Opções
+      tbody
+        each i, index in adesivosList
+          tr#corpo
+            td.text-capitalize= i.marca 
+            td.text-capitalize= i.tp 
+            td.text-capitalize.grVinil= i.gr 
+            td.text-capitalize= i.lg 
+            td.text-capitalize.fundo= i.fundo 
+            td.text-capitalize.cola= i.cola 
+            td.text-capitalize= i.estoque 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editAdesivo("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteAdesivo("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Bastões
+        tr 
+          th Fornecedor
+          th Tipo
+          th Expessura
+          th Tamanho
+          th Estoque atual
+          th Custo
+          th Opções
+      tbody
+        each i, index in bastaoList
+          tr#corpo
+            td.text-capitalize= i.fornecedor 
+            td.text-capitalize= i.tp 
+            td.text-capitalize= i.exp 
+            td.text-capitalize= i.tam 
+            td.text-capitalize= i.estoque 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editBastao("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteBastao("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Ilhoses
+        tr 
+          th Marca
+          th Tipo
+          th Largura
+          th Estoque atual
+          th Custo
+          th Opções
+      tbody
+        each i, index in ilhosesList
+          tr#corpo
+            td.text-capitalize= i.marca 
+            td.text-capitalize= i.tp 
+            td.text-capitalize= i.lg 
+            td.text-capitalize= i.estoque 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editIlhos("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deleteIlhos("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-all
+      thead
+        h6 Ponteiras
+        tr 
+          th Fornecedor
+          th Cor
+          th Espessura
+          th Estoque atual
+          th Custo
+          th Opções
+      tbody
+        each i, index in ponteirasList
+          tr#corpo
+            td.text-capitalize= i.fornecedor 
+            td.text-capitalize= i.cor 
+            td.text-capitalize= i.esp 
+            td.text-capitalize= i.estoque 
+            td.text-capitalize= i.custo 
+            td
+              a(href='#' onclick='editPonteira("'+ i._id+'");') 
+                span(data-feather='edit')
+              a(href='#' onclick='deletePonteira("'+ i._id+'");') 
+                span(data-feather='trash-2' style='cursor:crosshair')
+block append footer
+  script(src='../javascripts/jquery.mask.js')
+  script.
+    // Criando filtro pela tabela (Necessário JQuery e Bootstrap)
+    $("#searchText").on("keyup", function() {
+      var value = $(this).val().toLowerCase().replace(/\W/g,'');
+      $(".table-all tr#corpo").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().replace(/\W/g,'').indexOf(value) > -1)
+      });
+    });
+
+    // Adiccionando formatação para os textos
+    $(".fundo").each(function() {
+      var text = $(this).text();
+      text = text.replace("1", "Comum - Branco (passa luz)");
+      text = text.replace("2", "Blockout (Cinza ou Preto)");
+      text = text.replace("3", "Transparente");
+      $(this).text(text);
+    });
+    $(".cola").each(function() {
+      var text = $(this).text();
+      text = text.replace("1", "Permanente");
+      text = text.replace("2", "Removível");
+      $(this).text(text);
+    });
+    $('.grVinil').prepend('0.');
+    $('.grLon').append('gr');
+
+    // Função para criar uma nova lona, envia para o servidor e adiciona
+    function addNovaLona(){
+      var dialog = bootbox.dialog({
+        title: 'Novo rolo de Lona',
+        message: "<form action='/gerenciados/nova_lona' method='POST' id='formLona'> <div class='row'><div class='col'><label for='inputTp'>Tipo de lona</label><select class='form-control' name='inputTp' required><option value='Brilho'>Brilho</option><option value='Fosca'>Fosca</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><input type='number' class='form-control' name='inputGR' placeholder='440' required></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' placeholder='1485,80' required></div></div><p></p><div class='row'><div class='col'><label for='inputEstoque'>Metragem do rolo</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura</label><input type='number' class='form-control' name='inputLG' placeholder='320' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><input type='text' class='form-control' name='inputFundo' placeholder='Preto'></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formLona').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editLona(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Lona',
+        message: "<form action='#' method='POST' id='formEditLona'> <div class='row'><div class='col'><label for='inputTp'>Tipo de lona</label><select class='form-control' name='inputTp' required><option value='Brilho'>Brilho</option><option value='Fosca'>Fosca</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><input type='number' class='form-control' name='inputGR' placeholder='440' required></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' placeholder='1485,80' required></div></div><p></p><div class='row'><div class='col'><label for='inputEstoque'>Metragem do rolo</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura</label><input type='number' class='form-control' name='inputLG' placeholder='320' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><input type='text' class='form-control' name='inputFundo' placeholder='Preto'></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/gerenciados/lonas/'+id,
+            success: function (res){
+              $('#formEditLona').attr('action', '/gerenciados/lonas/edit/'+id);
+              $('input[name=\'inputTp\']').val(res.tp).change();
+              $('option[value="'+ res.tp +'"]').attr('selected','selected');
+              $('input[name=\'inputGR\']').val(res.gr);
+              $('input[name=\'inputMarca\']').val(res.marca);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputEstoque\']').val(res.estoque);
+              $('input[name=\'inputLG\']').val(res.lg);
+              $('input[name=\'inputFundo\']').val(res.fundo);
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditLona').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+
+    function deleteLona(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar esse rolo de lona?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/gerenciados/lonas/'+id,
+            success: function (response){
+              window.location.href='/gerenciados';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+
+    // ADESIVO
+    // Função para criar uma novo adesivo, envia para o servidor e adiciona
+    function addNovoAdesivo(){
+      var dialog = bootbox.dialog({
+        title: 'Novo rolo de Adesivo',
+        message: "<form action='/gerenciados/novo_adesivo' method='POST' id='formAdesivo'> <div class='row'><div class='col'><label for='inputTp'>Tipo de superfície</label><select class='form-control' name='inputTp' required><option value=''></option><option value='Brilho'>Brilho</option><option value='Fosca'>Fosco</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><select class='form-control' name='inputGR' required><option value=''></option><option value='8'>0.8</option><option value='10'>0.10</option></select></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div></div><p></p><div class='row'><div class='col'><label for='inputEstoque'>Metragem do rolo (M)</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura (cm)</label><input type='number' class='form-control' name='inputLG' placeholder='106' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><select class='form-control' name='inputFundo' required><option value=''></option><option value='1'>Comum - Branco (passa luz)</option><option value='2'>Blockout (Cinza ou Preto)</option><option value='3'>Transparente</option></select></div><div class='col'><label for='inputCola'>Cola</label><select class='form-control' name='inputCola' required><option value=''></option><option value='1'>Permanente</option><option value='2'>Removível</option></select></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formAdesivo').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editAdesivo(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Adesivo',
+        message: "<form action='#' method='POST' id='formEditAdesivo'> <div class='row'><div class='col'><label for='inputTp'>Tipo de superfície</label><select class='form-control' name='inputTp' required><option value=''></option><option value='Brilho'>Brilho</option><option value='Fosca'>Fosco</option></select></div><div class='col'><label for='inputGR'>Gramatura</label><select class='form-control' name='inputGR' required><option value=''></option><option value='8'>0.8</option><option value='10'>0.10</option></select></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' placeholder='Starflex' required></div><div class='col'><label for='inputCusto'>Preço do rolo</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div></div><p></p><div class='row'><div class='col'><label for='inputEstoque'>Metragem do rolo (M)</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div><div class='col'><label for='inputLG'>Largura (cm)</label><input type='number' class='form-control' name='inputLG' placeholder='106' required></div><div class='col'><label for='inputFundo'>Cor do fundo</label><select class='form-control' name='inputFundo' required><option value=''></option><option value='1'>Comum - Branco (passa luz)</option><option value='2'>Blockout (Cinza ou Preto)</option><option value='3'>Transparente</option></select></div><div class='col'><label for='inputCola'>Cola</label><select class='form-control' name='inputCola' required><option value=''></option><option value='1'>Permanente</option><option value='2'>Removível</option></select></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/gerenciados/adesivos/'+id,
+            success: function (res){
+              $('#formEditAdesivo').attr('action', '/gerenciados/adesivos/edit/'+id);
+              $('input[name=\'inputTp\']').val(res.tp).change();
+              $('option[value="'+ res.tp +'"]').attr('selected','selected');
+              $('input[name=\'inputGR\']').val(res.gr).change();
+              $('option[value="'+ res.gr +'"]').attr('selected','selected');
+              $('input[name=\'inputMarca\']').val(res.marca);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputEstoque\']').val(res.estoque);
+              $('input[name=\'inputLG\']').val(res.lg);
+              $('input[name=\'inputFundo\']').val(res.fundo);
+              $('input[name=\'inputCola\']').val(res.tp).change();
+              $('option[value="'+ res.cola +'"]').attr('selected','selected');
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditAdesivo').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function deleteAdesivo(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar esse rolo de adesivo?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/gerenciados/adesivos/'+id,
+            success: function (response){
+              window.location.href='/gerenciados';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+
+    // BASTAO
+    // Função para criar um novo bastao
+    function addNovoBastao(){
+      var dialog = bootbox.dialog({
+        title: 'Novo Bastão para banner',
+        message: "<form action='/gerenciados/novo_bastao' method='POST' id='formBastao'> <div class='row'><div class='col'><label for='inputTp'>Tipo de material</label><select class='form-control' name='inputTp' required><option value=''></option><option value='plastico'>Plástico</option><option value='Madeira'>Madeira</option><option value='Perfil C'>Perfil C</option></select></div><div class='col'><label for='inputEXP'>Espessura</label><select class='form-control' name='inputEXP' required><option value=''></option><option value='16'>16mm</option><option value='19'>19mm</option><option value='23'>23mm</option></select></div><div class='col'><label for='inputFornecedor'>Fornecedor</label><input type='text' class='form-control' name='inputFornecedor' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputEstoque'>Quantidade</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div><div class='col'><label for='inputTam'>Tamanho (cm)</label><input type='number' class='form-control' name='inputTam' required></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formBastao').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editBastao(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Bastão para Banner',
+        message: "<form action='#' method='POST' id='formEditBastao'> <div class='row'><div class='col'><label for='inputTp'>Tipo de material</label><select class='form-control' name='inputTp' required><option value=''></option><option value='plastico'>Plástico</option><option value='Madeira'>Madeira</option><option value='Perfil C'>Perfil C</option></select></div><div class='col'><label for='inputEXP'>Espessura</label><select class='form-control' name='inputEXP' required><option value=''></option><option value='16'>16mm</option><option value='19'>19mm</option><option value='23'>23mm</option></select></div><div class='col'><label for='inputFornecedor'>Fornecedor</label><input type='text' class='form-control' name='inputFornecedor' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputEstoque'>Quantidade</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div><div class='col'><label for='inputTam'>Tamanho (cm)</label><input type='number' class='form-control' name='inputTam' required></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/gerenciados/bastao/'+id,
+            success: function (res){
+              $('#formEditBastao').attr('action', '/gerenciados/bastao/edit/'+id);
+              $('input[name=\'inputTp\']').val(res.tp).change();
+              $('option[value="'+ res.tp +'"]').attr('selected','selected');
+              $('input[name=\'inputEXP\']').val(res.exp).change();
+              $('option[value="'+ res.exp +'"]').attr('selected','selected');
+              $('input[name=\'inputFornecedor\']').val(res.fornecedor);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputEstoque\']').val(res.estoque);
+              $('input[name=\'inputTam\']').val(res.tam);
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditBastao').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function deleteBastao(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar esse tipo de bastão?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/gerenciados/bastao/'+id,
+            success: function (response){
+              window.location.href='/gerenciados';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+
+
+    // ILHÓIS
+    // Função para criar um novo ilhos
+    function addNovoIlhos(){
+      var dialog = bootbox.dialog({
+        title: 'Novo Ilhós',
+        message: "<form action='/gerenciados/novo_ilhos' method='POST' id='formIlhos'> <div class='row'><div class='col'><label for='inputTp'>Tipo de material</label><select class='form-control' name='inputTp' required><option value=''></option><option value='ferro'>Ferro Niquelado</option><option value='aluminio'>Alumínio</option></select></div><div class='col'><label for='inputLG'>Largura do Ilhós</label><select class='form-control' name='inputLG' required><option value=''></option><option value='0'>Zero</option></select></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário (do ilhós)</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputEstoque'>Quantidade</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formIlhos').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editIlhos(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Ilhós de Lona',
+        message: "<form action='#' method='POST' id='formEditIlhos'> <div class='row'><div class='col'><label for='inputTp'>Tipo de material</label><select class='form-control' name='inputTp' required><option value=''></option><option value='ferro'>Ferro Niquelado</option><option value='aluminio'>Alumínio</option></select></div><div class='col'><label for='inputLG'>Largura do Ilhós</label><select class='form-control' name='inputLG' required><option value=''></option><option value='0'>Zero</option></select></div><div class='col'><label for='inputMarca'>Marca</label><input type='text' class='form-control' name='inputMarca' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário (do ilhós)</label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputEstoque'>Quantidade</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/gerenciados/ilhos/'+id,
+            success: function (res){
+              $('#formEditIlhos').attr('action', '/gerenciados/ilhos/edit/'+id);
+              $('input[name=\'inputTp\']').val(res.tp).change();
+              $('option[value="'+ res.tp +'"]').attr('selected','selected');
+              $('input[name=\'inputLG\']').val(res.exp).change();
+              $('option[value="'+ res.lg +'"]').attr('selected','selected');
+              $('input[name=\'inputMarca\']').val(res.marca);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputEstoque\']').val(res.estoque);
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditIlhos').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function deleteIlhos(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar esse tipo de ilhós?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/gerenciados/ilhos/'+id,
+            success: function (response){
+              window.location.href='/gerenciados';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }
+    // PONTEIRA
+    // Função para criar uma nova ponteira
+    function addNovaPonteira(){
+      var dialog = bootbox.dialog({
+        title: 'Nova Ponteira de Banner',
+        message: "<form action='/gerenciados/nova_ponteira' method='POST' id='formPonteira'> <div class='row'><div class='col'><label for='inputFornecedor'>Fornecedor</label><input type='text' class='form-control' name='inputFornecedor' required></div><div class='col'><label for='inputESP'>Espessura</label><select class='form-control' name='inputESP' required><option value=''></option><option value='16'>16mm</option><option value='19'>19mm</option><option value='23'>23mm</option></select></div><div class='col'><label for='inputCor'>Cor</label><input type='text' class='form-control' name='inputCor' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário </label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputEstoque'>Quantidade</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div></div></form>", 
+        onShow: function(e) {
+          $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true})
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Adicionar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formPonteira').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function editPonteira(id){
+      var dialog = bootbox.dialog({
+        title: 'Editar Ilhós de Lona',
+        message: "<form action='#' method='POST' id='formEditPonteira'> <div class='row'><div class='col'><label for='inputFornecedor'>Fornecedor</label><input type='text' class='form-control' name='inputFornecedor' required></div><div class='col'><label for='inputESP'>Espessura</label><select class='form-control' name='inputESP' required><option value=''></option><option value='16'>16mm</option><option value='19'>19mm</option><option value='23'>23mm</option></select></div><div class='col'><label for='inputCor'>Cor</label><input type='text' class='form-control' name='inputCor' required></div></div><p></p><div class='row'><div class='col'><label for='inputCusto'>Preço Unitário </label><input type='text' class='form-control money-formatt' name='inputCusto' required></div><div class='col'><label for='inputEstoque'>Quantidade</label><input type='number' class='form-control ' name='inputEstoque' placeholder='50' required></div></div></form>", 
+        onShow: function(e) {
+          $.ajax({
+            type: 'GET',
+            url: '/gerenciados/ponteiras/'+id,
+            success: function (res){
+              $('#formEditPonteira').attr('action', '/gerenciados/ponteiras/edit/'+id);
+              $('input[name=\'inputESP\']').val(res.esp).change();
+              $('option[value="'+ res.esp +'"]').attr('selected','selected');
+              $('input[name=\'inputCor\']').val(res.cor);
+              $('input[name=\'inputFornecedor\']').val(res.fornecedor);
+              $('input[name=\'inputCusto\']').val(res.custo);
+              $('input[name=\'inputEstoque\']').val(res.estoque);
+              $('.money-formatt').mask('R$ 000.000.000.000.000,00', {reverse: true});
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        },
+        size: 'large',
+        buttons: {
+          ok: {
+            label: "Atualizar",
+            className: 'btn-primary',
+            callback: function(){
+              $('#formEditPonteira').submit();
+            }
+          },
+          cancel: {
+            label: "Cancelar",
+            className: 'btn-danger',
+            callback: function(){
+              //Cancelada a inserção
+            }
+          },
+        }
+      });
+    }
+    function deletePonteira(id){
+      
+      bootbox.confirm("Tem certeza que deseja deletar essa ponteira do estoque?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/gerenciados/ponteiras/'+id,
+            success: function (response){
+              window.location.href='/gerenciados';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    }

@@ -1,0 +1,12 @@
+if typeof errors!= 'undefined'  
+  errors.forEach(function(error)
+    p.alert.alert-danger=error.msg
+  )        
+
+if success_msg!= '' 
+  p.alert.alert-danger=success_msg 
+
+if error_msg != '' 
+  p.alert.alert-danger= error_msg 
+if error != ''  
+  p.alert.alert-danger= error 

@@ -1,0 +1,86 @@
+extends layout
+
+block content
+  .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom
+    h1.h2 Clientes
+    .btn-toolbar.mb-2.mb-md-0
+      .btn-group.mr-2
+        a(href='/clientes/novo')
+          button.btn.btn-sm.btn-outline-secondary 
+            span(data-feather='user-plus') 
+            |  Novo cliente
+  h4 Clientes gerais
+
+  
+  input.form-control(type='text' id='searchText' name='searchText' autocomplete="off" placeholder='Busca por nome, CPF, telefone, endereço, etc' aria-label='Busca')
+  br
+  .table-responsive
+    table(style='text-align:center;').table.table-striped.table-sm.table-clientes
+      thead
+        tr
+          th Nome
+          th CPF/CNPJ
+          th Telefone
+          th Celular
+          th Endereço
+          th Editar
+          th Deletar
+      tbody#dadosclientes
+        each i, index in clientList
+          tr
+            td.text-capitalize= i.nome 
+            td.documento= i.documento 
+            td.tel= i.telefone 
+            td.tel= i.celular 
+            td.text-capitalize= i.logradouro+', '+i.numero+', '+i.bairro+', '+i.cidade+' - '+i.uf
+            td
+              a(href='/clientes/edit/'+ i._id) 
+                span(data-feather='edit')
+            td
+              span.delete-article(data-feather='trash-2' style='cursor:crosshair' data-id= i._id)
+
+block append footer
+  script(src='/javascripts/jquery.mask.js')
+  script.
+
+    // Colocando máscara para os telefones da pessoa (Fixo ou Celular)
+    $(".tel").each(function( index ) {
+      var tel = $(this).text();
+      tel.length < 11 ? $(this).mask('(99) 9999-9999') : $(this).mask('(99) 99999-9999');
+    });
+
+    // Colocando máscara no CPF ou CNPJ, à depender do cadastro do cliente
+    $(".documento").each(function( index ) {
+      var doc = $(this).text();
+      doc.length > 11 ? $(this).mask('00.000.000/0000-00') : $(this).mask('000.000.000-00#');
+    });
+    
+    // Criando filtro pela tabela (Necessário JQuery e Bootstrap)
+    $("#searchText").on("keyup", function() {
+      var value = $(this).val().toLowerCase().replace(/\W/g,'');
+      $(".table-clientes tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().replace(/\W/g,'').indexOf(value) > -1)
+      });
+    });
+
+    $('.delete-article').on('click', function(e){
+      $target = $(e.target);
+      const id = $target.attr('data-id');
+      
+      bootbox.confirm("Tem certeza que deseja deletar o cadastro?", function(result){ 
+        if(result){
+          $.ajax({
+            type: 'DELETE',
+            url: '/clientes/'+id,
+            success: function (response){
+              window.location.href='/clientes';
+            },
+            error: function(err){
+              console.error(err);
+            }
+          });
+        }
+      });
+    });
+
+
